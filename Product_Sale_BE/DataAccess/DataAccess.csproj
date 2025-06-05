@@ -24,4 +24,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\CartItemDTOs\" />
+    <Folder Include="DTOs\OrderItem\" />
+    <Folder Include="DTOs\PaymentDTOs\" />
+  </ItemGroup>
+
 </Project>

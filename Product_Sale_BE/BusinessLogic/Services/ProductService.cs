@@ -22,6 +22,7 @@ namespace BusinessLogic.Services
             _mapper = mapper;
             _unitOfWork = uow;
         }
+
         public async Task<PaginatedList<GetProductDTO>> GetPaginatedProductsAsync(int pageIndex, int pageSize, int? idSearch, string? nameSearch)
         {
             // Validate page parameters
