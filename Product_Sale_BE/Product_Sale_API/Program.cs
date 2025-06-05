@@ -61,6 +61,7 @@ builder.Services.AddScoped<IUOW, UOW>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICartItemService, CartItemService>();
 
 var app = builder.Build();
 

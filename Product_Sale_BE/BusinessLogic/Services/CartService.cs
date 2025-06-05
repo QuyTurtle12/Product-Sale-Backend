@@ -94,6 +94,10 @@ namespace BusinessLogic.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Cart data is required!");
             }
 
+            if (cartDTO.UserId == 0)
+            {
+                cartDTO.UserId = null;
+            }
             cartDTO.Status = "Pending";
 
             Cart cart = _mapper.Map<Cart>(cartDTO);
@@ -102,15 +106,20 @@ namespace BusinessLogic.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task UpdateCart(UpdateCartDTO cartDTO)
+        public async Task UpdateCart(int id, UpdateCartDTO cartDTO)
         {
             IGenericRepository<Cart> repository = _unitOfWork.GetRepository<Cart>();
-            Cart? existingCart = await repository.GetByIdAsync(cartDTO.CartId);
+            Cart? existingCart = await repository.GetByIdAsync(id);
             if (existingCart == null)
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart not found!");
             }
 
+            // Convert 0 to null
+            if (cartDTO.UserId == 0)
+            {
+                cartDTO.UserId = null;
+            }
             _mapper.Map(cartDTO, existingCart);
 
             repository.Update(existingCart);
@@ -125,6 +134,21 @@ namespace BusinessLogic.Services
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart not found!");
             }
+
+            repository.Delete(existingCart);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task SoftDeleteCart(int id)
+        {
+            IGenericRepository<Cart> repository = _unitOfWork.GetRepository<Cart>();
+            Cart? existingCart = await repository.GetByIdAsync(id);
+            if (existingCart == null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart not found!");
+            }
+
+            existingCart.Status = "Deleted";
 
             repository.Update(existingCart);
             await _unitOfWork.SaveAsync();

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.DTOs.CartDTOs
+namespace DataAccess.DTOs.CartItemDTOs
 {
-    public class UpdateCartDTO : BaseCartDTO
+    public class GetCartItemDTO : BaseCartItemDTO
     {
-
+        public int CartItemId { get; set; }
     }
 }
