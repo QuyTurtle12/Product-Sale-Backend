@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DataAccess.DTOs.ChatDTOs;
 using DataAccess.DTOs.UserDTOs;
 using DataAccess.Entities;
 using System;
@@ -14,6 +15,10 @@ namespace BusinessLogic.MappingProfiles
         public MappingProfile()
         {
             CreateMap<User, UserDTO>();
+
+            CreateMap<ChatMessage, ChatMessageDTO>()
+    .ForMember(d => d.Username,
+               o => o.MapFrom(s => s.User!.Username));
 
         }
     }
