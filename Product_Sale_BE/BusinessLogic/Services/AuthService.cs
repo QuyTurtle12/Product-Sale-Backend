@@ -48,14 +48,14 @@ namespace BusinessLogic.Services
             if (usernameExists)
                 throw new ErrorException(
                     StatusCodes.Status400BadRequest,
-                    ResponseCodeConstants.BADREQUEST,
+                    ResponseCodeConstants.BAD_REQUEST,
                     $"Username '{dto.Username}' is already in use.");
 
             bool emailExists = userRepo.Entities.Any(u => u.Email == dto.Email);
             if (emailExists)
                 throw new ErrorException(
                     StatusCodes.Status400BadRequest,
-                    ResponseCodeConstants.BADREQUEST,
+                    ResponseCodeConstants.BAD_REQUEST,
                     $"Email '{dto.Email}' is already registered.");
 
             // Map DTO to Entity

@@ -27,7 +27,7 @@ namespace BusinessLogic.Services
             // Validate page parameters
             if (pageIndex < 1 && pageSize < 1)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Page index or page size must be greater than or equal to 1.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
             IQueryable<Product> query = _unitOfWork.GetRepository<Product>().Entities
