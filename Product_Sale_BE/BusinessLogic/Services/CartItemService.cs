@@ -110,9 +110,9 @@ namespace BusinessLogic.Services
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Product not found!");
             }
-            cartItemDTO.Price = existingProduct.Price;
 
             CartItem cartItem = _mapper.Map<CartItem>(cartItemDTO);
+            cartItem.Price = existingProduct.Price;
 
             await _unitOfWork.GetRepository<CartItem>().InsertAsync(cartItem);
             await _unitOfWork.SaveAsync();
@@ -143,9 +143,9 @@ namespace BusinessLogic.Services
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Product not found!");
             }
-            cartItemDTO.Price = existingProduct.Price;
 
-            _mapper.Map(cartItemDTO, existingCartItem);
+            CartItem cartItem = _mapper.Map(cartItemDTO, existingCartItem);
+            cartItem.Price = existingProduct.Price;
 
             cartItemRepository.Update(existingCartItem);
             await _unitOfWork.SaveAsync();

@@ -9,5 +9,6 @@ namespace DataAccess.DTOs.CartItemDTOs
     public class GetCartItemDTO : BaseCartItemDTO
     {
         public int CartItemId { get; set; }
+        public decimal Price { get; set; }
     }
 }
