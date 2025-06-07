@@ -4,6 +4,7 @@ using DataAccess.Constant;
 using DataAccess.DTOs.AuthDTOs;
 using DataAccess.DTOs.UserDTOs;
 using DataAccess.ResponseModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -50,5 +51,28 @@ namespace Product_Sale_API.Controllers
                 message: "Login successful."
             ));
         }
+
+
+        [HttpGet("test/admin")]
+        [Authorize(Roles = RoleConstants.Admin)]
+        public async Task<IActionResult> RequireAdminRole()
+        {
+            return Ok();
+        }
+
+        [HttpGet("test/customer")]
+        [Authorize(Roles = RoleConstants.Customer)]
+        public async Task<IActionResult> RequireCustomerRole()
+        {
+            return Ok();
+        }
+
+        [HttpGet("test/user")]
+        [Authorize]
+        public async Task<IActionResult> RequireAnyUserRole()
+        {
+            return Ok();
+        }
+
     }
 }
