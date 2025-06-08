@@ -32,17 +32,17 @@ namespace Product_Sale_API.Controllers
         /// <param name="productIdSearch">status</param>
         /// <param name="quantitySearch">status</param>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<IActionResult> GetPaginatedCartItemsAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? cartIdSearch = null, int? productIdSearch = null, int? quantitySearch = null)
-        {
-            PaginatedList<GetCartItemDTO> result = await _cartItemService.GetPaginatedCartItemsAsync(pageIndex, pageSize, idSearch, cartIdSearch, productIdSearch, quantitySearch);
-            return Ok(new BaseResponseModel<PaginatedList<GetCartItemDTO>>(
-                    statusCode: StatusCodes.Status200OK,
-                    code: ResponseCodeConstants.SUCCESS,
-                    data: result,
-                    message: "Cart items retrieved successfully."
-                ));
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> GetPaginatedCartItemsAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? cartIdSearch = null, int? productIdSearch = null, int? quantitySearch = null)
+        //{
+        //    PaginatedList<GetCartItemDTO> result = await _cartItemService.GetPaginatedCartItemsAsync(pageIndex, pageSize, idSearch, cartIdSearch, productIdSearch, quantitySearch);
+        //    return Ok(new BaseResponseModel<PaginatedList<GetCartItemDTO>>(
+        //            statusCode: StatusCodes.Status200OK,
+        //            code: ResponseCodeConstants.SUCCESS,
+        //            data: result,
+        //            message: "Cart items retrieved successfully."
+        //        ));
+        //}
 
         [HttpPost]
         public async Task<IActionResult> PostCartItemAsync(AddCartItemDTO cartItemDTO)
