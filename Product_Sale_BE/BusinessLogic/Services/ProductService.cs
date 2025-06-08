@@ -66,5 +66,13 @@ namespace BusinessLogic.Services
 
             return paginatedList;
         }
+
+        public async Task<GetProductDTO> getProductDTO(int productId)
+        {
+            var product = _mapper.Map<GetProductDTO>(_unitOfWork.GetRepository<Product>().Entities
+                .Include(p => p.Category)
+                .FirstOrDefault(p => p.ProductId == productId));
+            return product;
+        }
     }
 }

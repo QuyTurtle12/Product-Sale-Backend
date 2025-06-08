@@ -12,7 +12,7 @@ namespace Product_Sale_API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
-        
+
         // Constructor
         public ProductsController(IProductService productService)
         {
@@ -37,6 +37,17 @@ namespace Product_Sale_API.Controllers
                     data: result,
                     message: "Products retrieved successfully."
                 ));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var product = await _productService.getProductDTO(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return Ok(product);
         }
     }
 }
