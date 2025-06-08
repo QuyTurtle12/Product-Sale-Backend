@@ -34,7 +34,7 @@ namespace BusinessLogic.Services
         {
             if (pageIndex < 1 && pageSize < 1)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Page index or page size must be greater than or equal to 1.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
             IQueryable<Payment> query = _unitOfWork.GetRepository<Payment>().Entities;
@@ -107,14 +107,14 @@ namespace BusinessLogic.Services
         {
             if (PaymentDTO == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Payment data is required!");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Payment data is required!");
             }
 
             Payment Payment = _mapper.Map<Payment>(PaymentDTO);
             Payment.PaymentDate = DateTime.Now;
 
             if (!PaymentDTO.OrderId.HasValue)
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Order ID is required.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Order ID is required.");
             Payment.Amount = await GetPaymentTotalFromPaymentAsync(PaymentDTO.OrderId.Value);
 
             await _unitOfWork.GetRepository<Payment>().InsertAsync(Payment);
@@ -127,7 +127,7 @@ namespace BusinessLogic.Services
             Payment? existingPayment = await repository.GetByIdAsync(id);
             if (existingPayment == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Payment not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Payment not found!");
             }
 
             _mapper.Map(PaymentDTO, existingPayment);
@@ -147,7 +147,7 @@ namespace BusinessLogic.Services
             Payment? existingPayment = await repository.GetByIdAsync(id);
             if (existingPayment == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Payment not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Payment not found!");
             }
 
             existingPayment.PaymentStatus = "Cancel";

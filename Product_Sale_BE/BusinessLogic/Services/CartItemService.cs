@@ -33,7 +33,7 @@ namespace BusinessLogic.Services
         {
             if (pageIndex < 1 && pageSize < 1)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Page index or page size must be greater than or equal to 1.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
             IQueryable<CartItem> query = _unitOfWork.GetRepository<CartItem>().Entities;
@@ -96,7 +96,7 @@ namespace BusinessLogic.Services
 
             if (cartItemDTO == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Cart Item data is required!");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Cart Item data is required!");
             }
 
             if (cartItemDTO.Quantity == 0)
@@ -108,7 +108,7 @@ namespace BusinessLogic.Services
             Product? existingProduct = await productRepository.GetByIdAsync(cartItemDTO.ProductId!);
             if (existingProduct == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Product not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Product not found!");
             }
 
             CartItem cartItem = _mapper.Map<CartItem>(cartItemDTO);
@@ -124,7 +124,7 @@ namespace BusinessLogic.Services
             CartItem? existingCartItem = await cartItemRepository.GetByIdAsync(id);
             if (existingCartItem == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart Item not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Cart Item not found!");
             }
 
             if (cartItemDTO.Quantity == 0)
@@ -141,7 +141,7 @@ namespace BusinessLogic.Services
             Product? existingProduct = await productRepository.GetByIdAsync(cartItemDTO.ProductId!);
             if (existingProduct == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Product not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Product not found!");
             }
 
             CartItem cartItem = _mapper.Map(cartItemDTO, existingCartItem);
@@ -157,7 +157,7 @@ namespace BusinessLogic.Services
             CartItem? existingCartItem = await repository.GetByIdAsync(id);
             if (existingCartItem == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart Item not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Cart Item not found!");
             }
 
             repository.Delete(existingCartItem);

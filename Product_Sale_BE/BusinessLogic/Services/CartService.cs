@@ -33,7 +33,7 @@ namespace BusinessLogic.Services
         {
             if (pageIndex < 1 && pageSize < 1)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Page index or page size must be greater than or equal to 1.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
             IQueryable<Cart> query = _unitOfWork.GetRepository<Cart>().Entities;
@@ -91,7 +91,7 @@ namespace BusinessLogic.Services
 
             if (cartDTO == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Cart data is required!");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Cart data is required!");
             }
 
             if (cartDTO.UserId == 0)
@@ -112,7 +112,7 @@ namespace BusinessLogic.Services
             Cart? existingCart = await repository.GetByIdAsync(id);
             if (existingCart == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Cart not found!");
             }
 
             // Convert 0 to null
@@ -132,7 +132,7 @@ namespace BusinessLogic.Services
             Cart? existingCart = await repository.GetByIdAsync(id);
             if (existingCart == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Cart not found!");
             }
 
             repository.Delete(existingCart);
@@ -145,7 +145,7 @@ namespace BusinessLogic.Services
             Cart? existingCart = await repository.GetByIdAsync(id);
             if (existingCart == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Cart not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Cart not found!");
             }
 
             existingCart.Status = "Deleted";

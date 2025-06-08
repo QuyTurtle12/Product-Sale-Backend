@@ -1,11 +1,8 @@
 ﻿using BusinessLogic.IServices;
-using BusinessLogic.Services;
 using DataAccess.Constant;
-using DataAccess.DTOs.PaymentDTOs;
 using DataAccess.DTOs.PaymentDTOs;
 using DataAccess.PaginatedList;
 using DataAccess.ResponseModel;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Product_Sale_API.Controllers
@@ -43,7 +40,7 @@ namespace Product_Sale_API.Controllers
             {
                 return BadRequest(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status400BadRequest,
-                    code: ResponseCodeConstants.BADREQUEST,
+                    code: ResponseCodeConstants.BAD_REQUEST,
                 data: null,
                     message: "Payment data is required!"
                 ));
@@ -79,7 +76,7 @@ namespace Product_Sale_API.Controllers
             {
                 return BadRequest(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status400BadRequest,
-                    code: ResponseCodeConstants.BADREQUEST,
+                    code: ResponseCodeConstants.BAD_REQUEST,
                     data: null,
                     message: "Invalid Payment data!"
                 ));

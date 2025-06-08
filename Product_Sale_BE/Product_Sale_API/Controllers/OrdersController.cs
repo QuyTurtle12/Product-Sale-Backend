@@ -44,7 +44,7 @@ namespace Product_Sale_API.Controllers
             {
                 return BadRequest(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status400BadRequest,
-                    code: ResponseCodeConstants.BADREQUEST,
+                    code: ResponseCodeConstants.BAD_REQUEST,
                     data: null,
                     message: "Order data is required!"
                 ));
@@ -80,7 +80,7 @@ namespace Product_Sale_API.Controllers
             {
                 return BadRequest(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status400BadRequest,
-                    code: ResponseCodeConstants.BADREQUEST,
+                    code: ResponseCodeConstants.BAD_REQUEST,
                     data: null,
                     message: "Invalid Order data!"
                 ));

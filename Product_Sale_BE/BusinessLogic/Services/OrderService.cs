@@ -32,7 +32,7 @@ namespace BusinessLogic.Services
         {
             if (pageIndex < 1 && pageSize < 1)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Page index or page size must be greater than or equal to 1.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
             IQueryable<Order> query = _unitOfWork.GetRepository<Order>().Entities;
@@ -119,7 +119,7 @@ namespace BusinessLogic.Services
         {
             if (OrderDTO == null)
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Order data is required!");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Order data is required!");
             }
 
             OrderDTO.OrderStatus = "Pending";
@@ -137,7 +137,7 @@ namespace BusinessLogic.Services
             Order? existingOrder = await repository.GetByIdAsync(id);
             if (existingOrder == null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Order not found!");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BAD_REQUEST, "Order not found!");
             }
 
             _mapper.Map(OrderDTO, existingOrder);
