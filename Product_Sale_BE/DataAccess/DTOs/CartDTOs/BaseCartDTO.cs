@@ -10,8 +10,8 @@ namespace DataAccess.DTOs.CartDTOs
     {
         public int? UserId { get; set; }
 
-        public decimal TotalPrice { get; set; }
+        //public decimal TotalPrice { get; set; }
 
-        public string Status { get; set; } = null!;
+        // public string Status { get; set; } = null!;
     }
 }
