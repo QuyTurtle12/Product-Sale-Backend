@@ -74,6 +74,11 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICartItemService, CartItemService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
 
 // Configure JWT Authentication:
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
