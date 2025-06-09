@@ -22,7 +22,16 @@ namespace BusinessLogic.Services
             _mapper = mapper;
             _unitOfWork = uow;
         }
-        public async Task<PaginatedList<GetProductDTO>> GetPaginatedProductsAsync(int pageIndex, int pageSize, int? idSearch, string? nameSearch)
+        public async Task<PaginatedList<GetProductDTO>> GetPaginatedProductsAsync(
+            int pageIndex, 
+            int pageSize, 
+            int? idSearch, 
+            string? nameSearch, 
+            string? sortBy = null, 
+            string? sortOrder = null, 
+            int? categoryId = null, 
+            decimal? minPrice = null, 
+            decimal? maxPrice = null)
         {
             // Validate page parameters
             if (pageIndex < 1 && pageSize < 1)
@@ -44,9 +53,52 @@ namespace BusinessLogic.Services
             {
                 query = query.Where(p => p.ProductName.Contains(nameSearch));
             }
-
-            // Sort the query by ProductId
-            query = query.OrderBy(p => p.ProductId);
+            
+            // Apply category filter if provided
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+            
+            // Apply price range filters if provided
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+            
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+            
+            // Apply sorting
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                // Default sort order is ascending
+                bool isAscending = string.IsNullOrEmpty(sortOrder) || sortOrder.ToLower() == "asc";
+                
+                switch (sortBy.ToLower())
+                {
+                    case "price":
+                        query = isAscending ? query.OrderBy(p => p.Price) : query.OrderByDescending(p => p.Price);
+                        break;
+                    case "name":
+                        query = isAscending ? query.OrderBy(p => p.ProductName) : query.OrderByDescending(p => p.ProductName);
+                        break;
+                    case "category":
+                        query = isAscending ? query.OrderBy(p => p.Category.CategoryName) : query.OrderByDescending(p => p.Category.CategoryName);
+                        break;
+                    default:
+                        // Default sort by ProductId
+                        query = isAscending ? query.OrderBy(p => p.ProductId) : query.OrderByDescending(p => p.ProductId);
+                        break;
+                }
+            }
+            else
+            {
+                // Default sort by ProductId if no sort specified
+                query = query.OrderBy(p => p.ProductId);
+            }
 
             // Change to paginated list to facilitate mapping process
             PaginatedList<Product> resultQuery = await _unitOfWork.GetRepository<Product>()
@@ -69,10 +121,21 @@ namespace BusinessLogic.Services
 
         public async Task<GetProductDTO> getProductDTO(int productId)
         {
-            var product = _mapper.Map<GetProductDTO>(_unitOfWork.GetRepository<Product>().Entities
+            var productEntity = _unitOfWork.GetRepository<Product>().Entities
                 .Include(p => p.Category)
-                .FirstOrDefault(p => p.ProductId == productId));
-            return product;
+                .FirstOrDefault(p => p.ProductId == productId);
+            
+            if (productEntity == null)
+            {
+                return null;
+            }
+            
+            var productDTO = _mapper.Map<GetProductDTO>(productEntity);
+            
+            // Xử lý trường hợp Category null
+            productDTO.CategoryName = productEntity.Category?.CategoryName ?? string.Empty;
+            
+            return productDTO;
         }
     }
 }
