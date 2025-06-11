@@ -51,18 +51,22 @@ namespace BusinessLogic.Services
                     ResponseCodeConstants.BAD_REQUEST,
                     $"Username '{dto.Username}' is already in use.");
 
-            bool emailExists = userRepo.Entities.Any(u => u.Email == dto.Email);
-            if (emailExists)
-                throw new ErrorException(
-                    StatusCodes.Status400BadRequest,
-                    ResponseCodeConstants.BAD_REQUEST,
-                    $"Email '{dto.Email}' is already registered.");
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                if (userRepo.Entities.Any(u => u.Email == dto.Email))
+                {
+                    throw new ErrorException(
+                        StatusCodes.Status400BadRequest,
+                        ResponseCodeConstants.BAD_REQUEST,
+                        $"Email '{dto.Email}' is already registered.");
+                }
+            }
 
             // Map DTO to Entity
             var newUser = new User
             {
                 Username = dto.Username,
-                Email = dto.Email,
+                Email = dto.Email ?? string.Empty,
                 PhoneNumber = dto.PhoneNumber,
                 Address = dto.Address,
                 Role = dto.Role // default "Customer"
