@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using Product_Sale_API.Middleware;
 using System.Reflection;
 using System.Text;
+using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +80,8 @@ builder.Services.AddScoped<ICartItemService, CartItemService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
+// Add VNPAY service to the container.
+builder.Services.AddSingleton<IVnpay, Vnpay>();
 
 // Configure JWT Authentication:
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
