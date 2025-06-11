@@ -85,7 +85,9 @@ public partial class SalesAppDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.UserId).HasColumnName("UserID");
-
+            entity.Property(e => e.ChatBoxId)
+                .HasColumnName("ChatBoxID")
+                .IsRequired();
             entity.HasOne(d => d.User).WithMany(p => p.ChatMessages)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__ChatMessa__UserI__534D60F1");

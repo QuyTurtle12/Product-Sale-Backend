@@ -17,9 +17,8 @@ namespace BusinessLogic.MappingProfiles
             CreateMap<User, UserDTO>();
 
             CreateMap<ChatMessage, ChatMessageDTO>()
-    .ForMember(d => d.Username,
-               o => o.MapFrom(s => s.User!.Username));
-
+                .ForMember(d => d.Username,o => o.MapFrom(s => s.User!.Username))
+                .ForMember(d => d.ChatBoxId,o => o.MapFrom(s => s.ChatBoxId));
         }
     }
 }
