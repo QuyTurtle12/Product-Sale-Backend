@@ -17,11 +17,11 @@ public partial class Product
 
     public decimal Price { get; set; }
 
-    public string? ImageUrl { get; set; }
-
     public int? CategoryId { get; set; }
 
     public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 
     public virtual Category? Category { get; set; }
+
+    public virtual ICollection<ProductImage>? ProductImages { get; set; }
 }
