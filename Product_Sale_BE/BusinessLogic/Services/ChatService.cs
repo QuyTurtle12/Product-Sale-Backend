@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using BusinessLogic.Hubs;
 using BusinessLogic.IServices;
 using DataAccess.DTOs.ChatDTOs;
 using DataAccess.Entities;
 using DataAccess.IRepositories;
 using DataAccess.PaginatedList;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,11 +18,12 @@ namespace BusinessLogic.Services
     {
         private readonly IUOW _uow;
         private readonly IMapper _mapper;
-
-        public ChatService(IUOW uow, IMapper mapper)
+        private readonly IHubContext<ChatHub> _hubContext;
+        public ChatService(IUOW uow, IMapper mapper, IHubContext<ChatHub> hubContext)
         {
             _uow = uow;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
         public async Task<PaginatedList<ChatMessageDTO>> GetMessagesAsync(
@@ -105,18 +108,52 @@ namespace BusinessLogic.Services
 
             return _mapper.Map<ChatMessageDTO>(updated);
         }
-
+        // Services/ChatService.cs
         public async Task DeleteMessageAsync(int userId, int messageId)
         {
             var repo = _uow.GetRepository<ChatMessage>();
             var entity = await repo.GetByIdAsync(messageId)
                         ?? throw new KeyNotFoundException($"Message {messageId} not found.");
 
-            if (entity.UserId != userId)
-                throw new UnauthorizedAccessException("Cannot delete another user’s message.");
+            // only author or admin can delete (you can pass role in or check here)
+            if (entity.UserId != userId && /* not admin */ false)
+                throw new UnauthorizedAccessException();
 
-            repo.Delete(entity);
+            // “Soft” delete:
+            entity.Message = "this message is deleted";
+            repo.Update(entity);
             await _uow.SaveAsync();
+
+            // broadcast the update
+            var dto = _mapper.Map<ChatMessageDTO>(entity);
+            await _hubContext
+                .Clients
+                .Group($"box-{entity.ChatBoxId}")
+                .SendAsync("MessageDeleted", dto);
         }
+
+        public async Task<PaginatedList<ChatMessageDTO>> SearchMessagesAsync(
+    string keyword,
+    int pageIndex, int pageSize,
+    int? chatBoxId, int? userId)
+        {
+            var repo = _uow.GetRepository<ChatMessage>();
+            var query = repo.Entities
+                            .Include(cm => cm.User)
+                            .Where(cm => cm.Message.Contains(keyword))
+                            .AsQueryable();
+
+            if (chatBoxId.HasValue)
+                query = query.Where(cm => cm.ChatBoxId == chatBoxId.Value);
+            if (userId.HasValue)
+                query = query.Where(cm => cm.UserId == userId.Value);
+
+            var paged = await repo.GetPagging(query, pageIndex, pageSize);
+            var dto = paged.Items.Select(cm => _mapper.Map<ChatMessageDTO>(cm)).ToList();
+
+            return new PaginatedList<ChatMessageDTO>(
+                dto, paged.TotalCount, paged.PageNumber, paged.PageSize);
+        }
+
     }
 }

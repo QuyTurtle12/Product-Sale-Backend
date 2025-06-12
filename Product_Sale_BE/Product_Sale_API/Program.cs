@@ -1,3 +1,4 @@
+using BusinessLogic.Hubs;
 using BusinessLogic.IServices;
 using BusinessLogic.Services;
 using DataAccess.Constant;
@@ -112,6 +113,7 @@ builder.Services.AddAuthorization();
 builder.WebHost
     .UseKestrel()
     .UseUrls("http://0.0.0.0:5006", "https://0.0.0.0:7050");
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -134,5 +136,6 @@ app.UseAuthorization();
 app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

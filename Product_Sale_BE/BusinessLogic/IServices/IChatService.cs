@@ -24,6 +24,11 @@ namespace BusinessLogic.IServices
             int userId, int messageId, UpdateChatMessageRequestDTO dto);
 
         Task DeleteMessageAsync(int userId, int messageId);
+
+        Task<PaginatedList<ChatMessageDTO>> SearchMessagesAsync(
+            string keyword, int pageIndex, int pageSize, 
+            int? chatBoxId, int? userId);
+
     }
 
 }
