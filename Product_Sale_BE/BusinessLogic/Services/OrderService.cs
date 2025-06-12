@@ -7,6 +7,7 @@ using DataAccess.ExceptionCustom;
 using DataAccess.IRepositories;
 using DataAccess.PaginatedList;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace BusinessLogic.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
-            IQueryable<Order> query = _unitOfWork.GetRepository<Order>().Entities;
+            IQueryable<Order> query = _unitOfWork.GetRepository<Order>().Entities.Include(u => u.User);
 
             // Apply id search filters if provided
             if (idSearch.HasValue)
@@ -95,7 +96,7 @@ namespace BusinessLogic.Services
             IReadOnlyCollection<GetOrderDTO> result = resultQuery.Items.Select(item =>
             {
                 GetOrderDTO OrderDTO = _mapper.Map<GetOrderDTO>(item);
-
+                OrderDTO.Username = item.User?.Username;
                 return OrderDTO;
             }).ToList();
 

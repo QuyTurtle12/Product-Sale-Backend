@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataAccess.DTOs.CartDTOs;
+using DataAccess.DTOs.CartItemDTOs;
 using DataAccess.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace BusinessLogic.MappingProfiles
         public CartProfile() 
         {
             CreateMap<Cart, GetCartDTO>().ReverseMap();
+            CreateMap<CartItem, GetCartItemDTO>();
             CreateMap<Cart, AddCartDTO>().ReverseMap();
             CreateMap<Cart, UpdateCartDTO>().ReverseMap();
         }

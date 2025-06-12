@@ -36,7 +36,7 @@ namespace BusinessLogic.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
-            IQueryable<Cart> query = _unitOfWork.GetRepository<Cart>().Entities;
+            IQueryable<Cart> query = _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems);
 
             // Apply id search filters if provided
             if (idSearch.HasValue)
@@ -98,9 +98,10 @@ namespace BusinessLogic.Services
             {
                 cartDTO.UserId = null;
             }
-            cartDTO.Status = "Pending";
+           
 
             Cart cart = _mapper.Map<Cart>(cartDTO);
+            cart.Status = "Pending";
 
             await _unitOfWork.GetRepository<Cart>().InsertAsync(cart);
             await _unitOfWork.SaveAsync();

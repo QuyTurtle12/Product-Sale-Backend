@@ -9,5 +9,7 @@ namespace DataAccess.DTOs.OrderItemDTOs
     public class GetOrderDTO : BaseOrderDTO
     {
         public int OrderId { get; set; }
+
+        public string? Username { get; set; }
     }
 }

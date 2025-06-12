@@ -115,7 +115,7 @@ namespace BusinessLogic.Services
 
             if (!PaymentDTO.OrderId.HasValue)
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Order ID is required.");
-            Payment.Amount = await GetPaymentTotalFromPaymentAsync(PaymentDTO.OrderId.Value);
+            Payment.Amount = await GetPaymentTotalFromOrderAsync(PaymentDTO.OrderId.Value);
 
             await _unitOfWork.GetRepository<Payment>().InsertAsync(Payment);
             await _unitOfWork.SaveAsync();
@@ -156,21 +156,13 @@ namespace BusinessLogic.Services
             await _unitOfWork.SaveAsync();
         }
 
-        
 
-        public async Task<decimal> GetPaymentTotalFromPaymentAsync(int paymentId)
+
+        public async Task<decimal> GetPaymentTotalFromOrderAsync(int orderId)
         {
-            // Get the payment
-            var payment = await _unitOfWork.GetRepository<Payment>().Entities
-                .Where(p => p.PaymentId == paymentId)
-                .FirstOrDefaultAsync();
-
-            if (payment == null)
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Payment not found.");
-
             // Get the related order
             var order = await _unitOfWork.GetRepository<Order>().Entities
-                .Where(o => o.OrderId == payment.OrderId)
+                .Where(o => o.OrderId == orderId)
                 .FirstOrDefaultAsync();
 
             if (order == null)
@@ -186,6 +178,7 @@ namespace BusinessLogic.Services
 
             return cartTotal;
         }
+
 
     }
 }
