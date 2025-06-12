@@ -12,5 +12,9 @@ namespace DataAccess.DTOs.ChatDTOs
         [Required(ErrorMessage = "Message is required.")]
         [StringLength(500, ErrorMessage = "Message can be at most 500 characters.")]
         public string Message { get; set; } = null!;
+        
+        [Required]
+        public int ChatBoxId { get; set; }
+
     }
 }

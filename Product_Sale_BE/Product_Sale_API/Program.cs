@@ -108,6 +108,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddAuthorization();
+
+builder.WebHost
+    .UseKestrel()
+    .UseUrls("http://0.0.0.0:5006", "https://0.0.0.0:7050");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -117,7 +122,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCors("AllowAllOrigins");
 

@@ -10,6 +10,7 @@ public partial class ChatMessage
     public int ChatBoxId { get; set; }
 
     public int? UserId { get; set; }
+    public int ChatBoxId { get; set; }
 
     public string? Message { get; set; }
 

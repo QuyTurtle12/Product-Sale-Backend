@@ -13,5 +13,7 @@ namespace DataAccess.DTOs.ChatDTOs
         public string Username { get; set; } = null!;
         public string Message { get; set; } = null!;
         public DateTime SentAt { get; set; }
+        public int ChatBoxId { get; set; }
+
     }
 }
