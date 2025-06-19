@@ -7,7 +7,10 @@ using DataAccess.Entities;
 using DataAccess.ExceptionCustom;
 using DataAccess.IRepositories;
 using DataAccess.PaginatedList;
+using DataAccess.ResponseModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,12 +24,15 @@ namespace BusinessLogic.Services
     {
         private readonly IMapper _mapper;
         private readonly IUOW _unitOfWork;
+        private readonly IUserService _userService;
+
 
         // Constructor
-        public CartService(IMapper mapper, IUOW uow)
+        public CartService(IMapper mapper, IUOW uow, IUserService userService)
         {
             _mapper = mapper;
             _unitOfWork = uow;
+            _userService = userService;
         }
 
         public async Task<PaginatedList<GetCartDTO>> GetPaginatedCartsAsync(int pageIndex, int pageSize, int? idSearch, int? userIdSearch, string? statusSearch)
@@ -154,5 +160,44 @@ namespace BusinessLogic.Services
             repository.Update(existingCart);
             await _unitOfWork.SaveAsync();
         }
+
+        public async Task<PaginatedList<GetCartDTO>> GetMyCartsAsync(int pageIndex, int pageSize, string? statusSearch)
+        {
+            int userId = _userService.GetUserId();
+            if (pageIndex < 1 && pageSize < 1)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
+            }
+
+            IQueryable<Cart> query = _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems).Where(uid => uid.UserId == userId);
+
+            // Apply name search filters if provided
+            if (!string.IsNullOrEmpty(statusSearch))
+            {
+                query = query.Where(p => p.Status.Contains(statusSearch));
+            }
+
+            // Sort the query by CartId
+            query = query.OrderByDescending(p => p.CartId);
+
+            // Change to paginated list to facilitate mapping process
+            PaginatedList<Cart> resultQuery = await _unitOfWork.GetRepository<Cart>()
+                .GetPagging(query, pageIndex, pageSize);
+
+            // Map the result to GetCartDTO
+            IReadOnlyCollection<GetCartDTO> result = resultQuery.Items.Select(item =>
+            {
+                GetCartDTO cartDTO = _mapper.Map<GetCartDTO>(item);
+
+                return cartDTO;
+            }).ToList();
+
+            PaginatedList<GetCartDTO> paginatedList = new PaginatedList<GetCartDTO>(result, resultQuery.TotalCount, resultQuery.PageNumber, resultQuery.PageSize);
+
+            return paginatedList;
+
+        }
+
+
     }
 }

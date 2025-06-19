@@ -112,6 +112,7 @@ namespace BusinessLogic.Services
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub,     user.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
                 new Claim(ClaimTypes.Role,                  user.Role),
                 new Claim(JwtRegisteredClaimNames.Email,    user.Email),

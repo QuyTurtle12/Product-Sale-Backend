@@ -17,7 +17,6 @@ namespace BusinessLogic.IServices
         Task UpdateCart(int id, UpdateCartDTO cartDTO);
         Task DeleteCart(int id);
         Task SoftDeleteCart(int id);
-
-
+        Task<PaginatedList<GetCartDTO>> GetMyCartsAsync(int pageIndex, int pageSize, string? statusSearch);
     }
 }

@@ -5,6 +5,7 @@ using DataAccess.DTOs.ProductDTOs;
 using DataAccess.ExceptionCustom;
 using DataAccess.PaginatedList;
 using DataAccess.ResponseModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Product_Sale_API.Controllers
@@ -169,6 +170,21 @@ namespace Product_Sale_API.Controllers
         }
 
         #endregion 
+
+        [HttpGet("my-carts")]
+        public async Task<IActionResult> GetMyCartsAsync(int pageIndex = 1, int pageSize = 10, string? statusSearch = null)
+        {
+            PaginatedList<GetCartDTO> result = await _cartService.GetMyCartsAsync(pageIndex, pageSize, statusSearch);
+
+            return Ok(new BaseResponseModel<PaginatedList<GetCartDTO>>(
+                    statusCode: StatusCodes.Status200OK,
+                    code: ResponseCodeConstants.SUCCESS,
+                    data: result,
+                    message: "Carts retrieved successfully."
+                ));
+        }
+
+
 
     }
 }

@@ -16,6 +16,9 @@ using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -64,6 +67,40 @@ builder.Services.AddSwaggerGen(options =>
     // Add XML Comments
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+    // Add Bearer Auth
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header using the Bearer scheme.  
+                        Enter 'Bearer' [space] and then your token in the text input below.  
+                        Example: `Bearer abc123xyz`",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            new List<string>()
+        }
+    });
+
+    
+
+   
 });
 
 // Register AutoMapper
@@ -79,6 +116,8 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartItemService, CartItemService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 
 // Add VNPAY service to the container.
 builder.Services.AddSingleton<IVnpay, Vnpay>();
@@ -96,6 +135,21 @@ builder.Services.AddAuthentication(options =>
 {
     options.RequireHttpsMetadata = true;
     options.SaveToken = true;
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(authHeader) && !authHeader.StartsWith("Bearer "))
+            {
+                // Automatically add "Bearer " if it's missing
+                context.Token = authHeader;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -137,5 +191,26 @@ app.UseAuthorization();
 app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
 app.MapControllers();
+
+app.MapGet("/test-token", [Microsoft.AspNetCore.Authorization.Authorize] (HttpContext httpContext) =>
+{
+    var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var username = httpContext.User.Identity?.Name;
+    var role = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+    if (userId == null)
+    {
+        return Results.Unauthorized();
+    }
+
+    return Results.Ok(new
+    {
+        message = "Token is valid.",
+        userId,
+        username,
+        role
+    });
+});
+
 
 app.Run();
