@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.IServices;
+using BusinessLogic.Services;
 using DataAccess.Constant;
 using DataAccess.DTOs.CartDTOs;
 using DataAccess.DTOs.ProductDTOs;
@@ -171,7 +172,7 @@ namespace Product_Sale_API.Controllers
 
         #endregion 
 
-        [HttpGet("my-carts")]
+        [HttpGet("customer/get-my-carts")]
         public async Task<IActionResult> GetMyCartsAsync(int pageIndex = 1, int pageSize = 10, string? statusSearch = null)
         {
             PaginatedList<GetCartDTO> result = await _cartService.GetMyCartsAsync(pageIndex, pageSize, statusSearch);
@@ -184,6 +185,16 @@ namespace Product_Sale_API.Controllers
                 ));
         }
 
+        [HttpGet("customer/cart")]
+        public async Task<ActionResult<GetCartDTO?>> GetLatestCart()
+        {
+            var cart = await _cartService.GetMyLatestAvailableCartAsync();
+
+            if (cart == null)
+                return NotFound("No available cart found.");
+
+            return Ok(cart);
+        }
 
 
     }

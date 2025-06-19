@@ -199,5 +199,21 @@ namespace BusinessLogic.Services
         }
 
 
+        public async Task<GetCartDTO?> GetMyLatestAvailableCartAsync()
+        {
+            int userId = _userService.GetUserId();
+
+            var cart = await (from c in _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems)
+                              where c.UserId == userId &&
+                                    !_unitOfWork.GetRepository<Order>().Entities.Any(o => o.CartId == c.CartId)
+                              orderby c.CartId descending
+                              select c).FirstOrDefaultAsync();
+
+            if (cart == null)
+                return null;
+
+            return _mapper.Map<GetCartDTO>(cart);
+        }
+
     }
 }
