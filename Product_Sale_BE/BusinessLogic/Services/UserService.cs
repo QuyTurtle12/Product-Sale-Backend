@@ -34,5 +34,18 @@ namespace BusinessLogic.Services
 
             return userId;
         }
+
+        public bool IsTokenValid()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user?.Identity?.IsAuthenticated != true)
+                return false;
+
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)
+                            ?? user.FindFirst(JwtRegisteredClaimNames.Sub);
+
+            return userIdClaim != null && int.TryParse(userIdClaim.Value, out _);
+        }
     }
 }

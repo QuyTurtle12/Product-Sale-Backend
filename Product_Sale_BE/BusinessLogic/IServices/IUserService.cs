@@ -9,5 +9,6 @@ namespace BusinessLogic.IServices
     public interface IUserService
     {
         int GetUserId();
+        bool IsTokenValid();
     }
 }

@@ -2,6 +2,7 @@
 using BusinessLogic.IServices;
 using DataAccess.Constant;
 using DataAccess.DTOs.CartDTOs;
+using DataAccess.DTOs.CartItemDTOs;
 using DataAccess.DTOs.ProductDTOs;
 using DataAccess.Entities;
 using DataAccess.ExceptionCustom;
@@ -25,14 +26,16 @@ namespace BusinessLogic.Services
         private readonly IMapper _mapper;
         private readonly IUOW _unitOfWork;
         private readonly IUserService _userService;
+        private readonly ICartItemService _cartItemService;
 
 
         // Constructor
-        public CartService(IMapper mapper, IUOW uow, IUserService userService)
+        public CartService(IMapper mapper, IUOW uow, IUserService userService, ICartItemService cartItemService)
         {
             _mapper = mapper;
             _unitOfWork = uow;
             _userService = userService;
+            _cartItemService = cartItemService;
         }
 
         public async Task<PaginatedList<GetCartDTO>> GetPaginatedCartsAsync(int pageIndex, int pageSize, int? idSearch, int? userIdSearch, string? statusSearch)
@@ -104,7 +107,10 @@ namespace BusinessLogic.Services
             {
                 cartDTO.UserId = null;
             }
-           
+            if (_userService.IsTokenValid())
+            {
+                cartDTO.UserId = _userService.GetUserId();
+            }
 
             Cart cart = _mapper.Map<Cart>(cartDTO);
             cart.Status = "Pending";
@@ -127,7 +133,17 @@ namespace BusinessLogic.Services
             {
                 cartDTO.UserId = null;
             }
+            if (_userService.IsTokenValid())
+            {
+                cartDTO.UserId = _userService.GetUserId();
+            }
+
             _mapper.Map(cartDTO, existingCart);
+
+            // Calculate total price 
+            var cartItems = await _cartItemService.GetPaginatedCartItemsAsync(1, 100, null, id, null, null);
+            decimal totalPrice = cartItems.Items.Sum(item => item.Price * item.Quantity);
+            existingCart.TotalPrice = totalPrice;
 
             repository.Update(existingCart);
             await _unitOfWork.SaveAsync();

@@ -3,6 +3,7 @@ using DataAccess.Constant;
 using DataAccess.DTOs.OrderItemDTOs;
 using DataAccess.PaginatedList;
 using DataAccess.ResponseModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,22 +13,22 @@ namespace Product_Sale_API.Controllers
     [ApiController]
     public class OrdersController : Controller
     {
-        private readonly IOrderService _OrderService;
+        private readonly IOrderService _orderService;
 
         // Constructor
-        public OrdersController(IOrderService OrderService)
+        public OrdersController(IOrderService orderService)
         {
-            _OrderService = OrderService;
+            _orderService = orderService;
         }
 
         #region CRUD
 
 
         [HttpGet]
-        public async Task<IActionResult> GetPaginatedOrdersAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? orderIdSearch = null, int? userIdSearch = null, 
+        public async Task<IActionResult> GetPaginatedOrdersAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? cartIdSearch = null, int? userIdSearch = null, 
             string? paymentMethodSearch = null, string? addressSearch = null, string? statusSearch = null, DateTime? orderDateSearch = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            PaginatedList<GetOrderDTO> result = await _OrderService.GetPaginatedOrdersAsync(pageIndex, pageSize, idSearch, orderIdSearch, userIdSearch,
+            PaginatedList<GetOrderDTO> result = await _orderService.GetPaginatedOrdersAsync(pageIndex, pageSize, idSearch, cartIdSearch, userIdSearch,
             paymentMethodSearch, addressSearch, statusSearch, orderDateSearch, startDate, endDate);
             return Ok(new BaseResponseModel<PaginatedList<GetOrderDTO>>(
                     statusCode: StatusCodes.Status200OK,
@@ -52,7 +53,7 @@ namespace Product_Sale_API.Controllers
 
             try
             {
-                await _OrderService.CreateOrder(OrderDTO);
+                await _orderService.CreateOrder(OrderDTO);
 
                 return Ok(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status200OK,
@@ -88,7 +89,7 @@ namespace Product_Sale_API.Controllers
 
             try
             {
-                await _OrderService.UpdateOrder(id, OrderDTO);
+                await _orderService.UpdateOrder(id, OrderDTO);
 
                 return Ok(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status200OK,
@@ -111,8 +112,21 @@ namespace Product_Sale_API.Controllers
 
         #endregion
 
-
-
+        [Authorize(Roles = RoleConstants.Customer)]
+        [HttpGet("customer/get-my-order")]
+        public async Task<IActionResult> GetMyOrdersAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? cartIdSearch = null,
+            string? paymentMethodSearch = null, string? addressSearch = null, string? statusSearch = null, 
+            DateTime? orderDateSearch = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            PaginatedList<GetOrderDTO> result = await _orderService.GetMyOrdersAsync(pageIndex, pageSize, idSearch, cartIdSearch,
+            paymentMethodSearch, addressSearch, statusSearch, orderDateSearch, startDate, endDate);
+            return Ok(new BaseResponseModel<PaginatedList<GetOrderDTO>>(
+                    statusCode: StatusCodes.Status200OK,
+                    code: ResponseCodeConstants.SUCCESS,
+                    data: result,
+                    message: "Orders retrieved successfully."
+                ));
+        }
 
     }
 }
