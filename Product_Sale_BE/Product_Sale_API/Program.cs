@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using BusinessLogic.IServices;
 using BusinessLogic.Services;
 using DataAccess.Constant;
@@ -7,11 +9,10 @@ using DataAccess.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Product_Sale_API.Middleware;
-using System.Reflection;
-using System.Text;
 using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +60,32 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "Product Sale API",
         Version = "v1"
+    });
+
+    // Add JWT Authentication
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 
     // Add XML Comments

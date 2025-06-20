@@ -3,6 +3,7 @@ using DataAccess.Constant;
 using DataAccess.DTOs.ProductDTOs;
 using DataAccess.PaginatedList;
 using DataAccess.ResponseModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Product_Sale_API.Controllers
