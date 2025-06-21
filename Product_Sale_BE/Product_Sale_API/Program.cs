@@ -76,36 +76,9 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-
     // Add XML Comments
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-
-    // Add Bearer Auth
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = @"JWT Authorization header using the Bearer scheme.  
-                        Enter 'Bearer' [space] and then your token in the text input below.  
-                        Example: `Bearer abc123xyz`",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
@@ -124,10 +97,6 @@ builder.Services.AddSwaggerGen(options =>
             new List<string>()
         }
     });
-
-    
-
-   
 });
 
 // Register AutoMapper
