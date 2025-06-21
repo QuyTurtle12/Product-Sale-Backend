@@ -4,6 +4,7 @@ using DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(SalesAppDbContext))]
-    partial class SalesAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250621040034_Add_Brand_And_Rating_To_Product")]
+    partial class Add_Brand_And_Rating_To_Product
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,23 +24,6 @@ namespace DataAccess.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("DataAccess.Entities.Brand", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Brands");
-                });
 
             modelBuilder.Entity("DataAccess.Entities.Cart", b =>
                 {
@@ -277,8 +263,8 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
-                    b.Property<int?>("BrandId")
-                        .HasColumnType("int");
+                    b.Property<string>("Brand")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BriefDescription")
                         .HasMaxLength(255)
@@ -307,8 +293,6 @@ namespace DataAccess.Migrations
 
                     b.HasKey("ProductId")
                         .HasName("PK__Products__B40CC6ED8349ED38");
-
-                    b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
@@ -485,17 +469,10 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("DataAccess.Entities.Product", b =>
                 {
-                    b.HasOne("DataAccess.Entities.Brand", "Brand")
-                        .WithMany("Products")
-                        .HasForeignKey("BrandId")
-                        .HasConstraintName("FK__Products__BrandID");
-
                     b.HasOne("DataAccess.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .HasConstraintName("FK__Products__Catego__3B75D760");
-
-                    b.Navigation("Brand");
 
                     b.Navigation("Category");
                 });
@@ -510,11 +487,6 @@ namespace DataAccess.Migrations
                         .HasConstraintName("FK__ProductImages__ProductID");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("DataAccess.Entities.Brand", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("DataAccess.Entities.Cart", b =>
