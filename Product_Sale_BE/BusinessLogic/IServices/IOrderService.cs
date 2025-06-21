@@ -17,5 +17,7 @@ namespace BusinessLogic.IServices
         Task UpdateOrder(int id, UpdateOrderDTO OrderDTO);
         Task DeleteOrder(int id);
         Task SoftDeleteOrder(int id);
+        Task<PaginatedList<GetOrderDTO>> GetMyOrdersAsync(int pageIndex, int pageSize, int? idSearch, int? cartIdSearch,
+            string? paymentMethodSearch, string? addressSearch, string? statusSearch, DateTime? orderDateSearch, DateTime? startDate, DateTime? endDate);
     }
 }

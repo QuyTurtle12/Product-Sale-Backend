@@ -2,12 +2,16 @@
 using BusinessLogic.IServices;
 using DataAccess.Constant;
 using DataAccess.DTOs.CartDTOs;
+using DataAccess.DTOs.CartItemDTOs;
 using DataAccess.DTOs.ProductDTOs;
 using DataAccess.Entities;
 using DataAccess.ExceptionCustom;
 using DataAccess.IRepositories;
 using DataAccess.PaginatedList;
+using DataAccess.ResponseModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,12 +25,17 @@ namespace BusinessLogic.Services
     {
         private readonly IMapper _mapper;
         private readonly IUOW _unitOfWork;
+        private readonly IUserService _userService;
+        private readonly ICartItemService _cartItemService;
+
 
         // Constructor
-        public CartService(IMapper mapper, IUOW uow)
+        public CartService(IMapper mapper, IUOW uow, IUserService userService, ICartItemService cartItemService)
         {
             _mapper = mapper;
             _unitOfWork = uow;
+            _userService = userService;
+            _cartItemService = cartItemService;
         }
 
         public async Task<PaginatedList<GetCartDTO>> GetPaginatedCartsAsync(int pageIndex, int pageSize, int? idSearch, int? userIdSearch, string? statusSearch)
@@ -98,7 +107,10 @@ namespace BusinessLogic.Services
             {
                 cartDTO.UserId = null;
             }
-           
+            if (_userService.IsTokenValid())
+            {
+                cartDTO.UserId = _userService.GetUserId();
+            }
 
             Cart cart = _mapper.Map<Cart>(cartDTO);
             cart.Status = "Pending";
@@ -121,7 +133,17 @@ namespace BusinessLogic.Services
             {
                 cartDTO.UserId = null;
             }
+            if (_userService.IsTokenValid())
+            {
+                cartDTO.UserId = _userService.GetUserId();
+            }
+
             _mapper.Map(cartDTO, existingCart);
+
+            // Calculate total price 
+            var cartItems = await _cartItemService.GetPaginatedCartItemsAsync(1, 100, null, id, null, null);
+            decimal totalPrice = cartItems.Items.Sum(item => item.Price * item.Quantity);
+            existingCart.TotalPrice = totalPrice;
 
             repository.Update(existingCart);
             await _unitOfWork.SaveAsync();
@@ -154,5 +176,60 @@ namespace BusinessLogic.Services
             repository.Update(existingCart);
             await _unitOfWork.SaveAsync();
         }
+
+        public async Task<PaginatedList<GetCartDTO>> GetMyCartsAsync(int pageIndex, int pageSize, string? statusSearch)
+        {
+            int userId = _userService.GetUserId();
+            if (pageIndex < 1 && pageSize < 1)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
+            }
+
+            IQueryable<Cart> query = _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems).Where(uid => uid.UserId == userId);
+
+            // Apply name search filters if provided
+            if (!string.IsNullOrEmpty(statusSearch))
+            {
+                query = query.Where(p => p.Status.Contains(statusSearch));
+            }
+
+            // Sort the query by CartId
+            query = query.OrderByDescending(p => p.CartId);
+
+            // Change to paginated list to facilitate mapping process
+            PaginatedList<Cart> resultQuery = await _unitOfWork.GetRepository<Cart>()
+                .GetPagging(query, pageIndex, pageSize);
+
+            // Map the result to GetCartDTO
+            IReadOnlyCollection<GetCartDTO> result = resultQuery.Items.Select(item =>
+            {
+                GetCartDTO cartDTO = _mapper.Map<GetCartDTO>(item);
+
+                return cartDTO;
+            }).ToList();
+
+            PaginatedList<GetCartDTO> paginatedList = new PaginatedList<GetCartDTO>(result, resultQuery.TotalCount, resultQuery.PageNumber, resultQuery.PageSize);
+
+            return paginatedList;
+
+        }
+
+
+        public async Task<GetCartDTO?> GetMyLatestAvailableCartAsync()
+        {
+            int userId = _userService.GetUserId();
+
+            var cart = await (from c in _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems)
+                              where c.UserId == userId &&
+                                    !_unitOfWork.GetRepository<Order>().Entities.Any(o => o.CartId == c.CartId)
+                              orderby c.CartId descending
+                              select c).FirstOrDefaultAsync();
+
+            if (cart == null)
+                return null;
+
+            return _mapper.Map<GetCartDTO>(cart);
+        }
+
     }
 }
