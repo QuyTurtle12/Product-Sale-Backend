@@ -27,15 +27,17 @@ namespace BusinessLogic.Services
         private readonly IUOW _unitOfWork;
         private readonly IUserService _userService;
         private readonly ICartItemService _cartItemService;
+        private readonly SalesAppDbContext _salesAppDbContext;
 
 
         // Constructor
-        public CartService(IMapper mapper, IUOW uow, IUserService userService, ICartItemService cartItemService)
+        public CartService(IMapper mapper, IUOW uow, IUserService userService, ICartItemService cartItemService, SalesAppDbContext salesAppDbContext)
         {
             _mapper = mapper;
             _unitOfWork = uow;
             _userService = userService;
             _cartItemService = cartItemService;
+            _salesAppDbContext = salesAppDbContext;
         }
 
         public async Task<PaginatedList<GetCartDTO>> GetPaginatedCartsAsync(int pageIndex, int pageSize, int? idSearch, int? userIdSearch, string? statusSearch)
@@ -76,12 +78,28 @@ namespace BusinessLogic.Services
             {
                 GetCartDTO cartDTO = _mapper.Map<GetCartDTO>(item);
 
+                // Loop through each cart item to set Product info manually
+                foreach (var cartItem in cartDTO.CartItems!)
+                {
+                    var product = _unitOfWork.GetRepository<Product>()
+                        .Entities
+                        .FirstOrDefault(p => p.ProductId == cartItem.ProductId);
+
+                    if (product != null)
+                    {
+                        cartItem.ProductName = product.ProductName;
+                        cartItem.FullDescription = product.FullDescription;
+                        cartItem.ImageUrl = product.ProductImages?.FirstOrDefault()?.ImageUrl ?? "No image available"; // No table name ProductImages
+                    }
+                }
+
                 return cartDTO;
             }).ToList();
 
             PaginatedList<GetCartDTO> paginatedList = new PaginatedList<GetCartDTO>(result, resultQuery.TotalCount, resultQuery.PageNumber, resultQuery.PageSize);
 
             return paginatedList;
+
         }
 
         public async Task<GetCartDTO> GetCartById(int id)
