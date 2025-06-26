@@ -17,6 +17,20 @@ using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure environment-specific settings
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .AddUserSecrets<Program>(optional: true);
+
+// Add user secrets in Development environment
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 // Register HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
@@ -35,6 +49,7 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
+
 // Bind JwtSettings from appsettings.json
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings")
