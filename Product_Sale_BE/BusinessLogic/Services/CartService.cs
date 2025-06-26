@@ -149,7 +149,15 @@ namespace BusinessLogic.Services
             // Convert 0 to null
             if (cartDTO.UserId == 0)
             {
-                cartDTO.UserId = null;
+                if(existingCart.UserId == null)
+                {
+                    cartDTO.UserId = null;
+                }
+                else
+                {
+                    cartDTO.UserId = existingCart.UserId;
+                }
+                
             }
             if (_userService.IsTokenValid())
             {
