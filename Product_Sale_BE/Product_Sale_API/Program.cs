@@ -25,12 +25,6 @@ builder.Configuration
     .AddEnvironmentVariables()
     .AddUserSecrets<Program>(optional: true);
 
-// Add user secrets in Development environment
-if (builder.Environment.IsDevelopment())
-{
-    builder.Configuration.AddUserSecrets<Program>();
-}
-
 // Register HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
@@ -177,9 +171,9 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 
-builder.WebHost
-    .UseKestrel()
-    .UseUrls("http://0.0.0.0:5006", "https://0.0.0.0:7050");
+//builder.WebHost
+//    .UseKestrel()
+//    .UseUrls("http://0.0.0.0:5006", "https://0.0.0.0:7050");
 
 var app = builder.Build();
 
