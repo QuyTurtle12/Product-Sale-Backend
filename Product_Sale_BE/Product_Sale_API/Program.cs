@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using BusinessLogic.IServices;
 using BusinessLogic.Services;
 using DataAccess.Constant;
@@ -7,14 +9,21 @@ using DataAccess.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Product_Sale_API.Middleware;
-using System.Reflection;
-using System.Text;
 using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure environment-specific settings
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .AddUserSecrets<Program>(optional: true);
 
 // Register HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
@@ -34,6 +43,7 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
+
 // Bind JwtSettings from appsettings.json
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings")
@@ -64,21 +74,20 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
+    // Add JWT Authentication
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+
     // Add XML Comments
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-
-    // Add Bearer Auth
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = @"JWT Authorization header using the Bearer scheme.  
-                        Enter 'Bearer' [space] and then your token in the text input below.  
-                        Example: `Bearer abc123xyz`",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
@@ -97,10 +106,6 @@ builder.Services.AddSwaggerGen(options =>
             new List<string>()
         }
     });
-
-    
-
-   
 });
 
 // Register AutoMapper
@@ -166,9 +171,9 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 
-builder.WebHost
-    .UseKestrel()
-    .UseUrls("http://0.0.0.0:5006", "https://0.0.0.0:7050");
+//builder.WebHost
+//    .UseKestrel()
+//    .UseUrls("http://0.0.0.0:5006", "https://0.0.0.0:7050");
 
 var app = builder.Build();
 

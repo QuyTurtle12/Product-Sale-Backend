@@ -36,6 +36,8 @@ public partial class SalesAppDbContext : DbContext
 
     public virtual DbSet<ProductImage> ProductImages { get; set; }
 
+    public virtual DbSet<Brand> Brands { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Cart>(entity =>
@@ -165,6 +167,11 @@ public partial class SalesAppDbContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("FK__Products__Catego__3B75D760");
+
+            entity.HasOne(d => d.Brand)
+                .WithMany(p => p.Products)
+                .HasForeignKey(d => d.BrandId)
+                .HasConstraintName("FK__Products__BrandID");
         });
 
         modelBuilder.Entity<ProductImage>(entity =>
