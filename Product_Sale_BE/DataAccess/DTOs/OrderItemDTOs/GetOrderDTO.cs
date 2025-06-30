@@ -13,6 +13,7 @@ namespace DataAccess.DTOs.OrderItemDTOs
 
         public string? Username { get; set; }
         public GetCartDTO? Cart { get; set; }
+        public DateTime OrderDate { get; set; }
 
     }
 }

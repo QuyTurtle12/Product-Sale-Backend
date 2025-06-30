@@ -40,7 +40,8 @@ namespace BusinessLogic.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
-            IQueryable<Order> query = _unitOfWork.GetRepository<Order>().Entities.Include(u => u.User).Include(cart => cart.Cart).ThenInclude(cartItem => cartItem.CartItems); ;
+            IQueryable<Order> query = _unitOfWork.GetRepository<Order>().Entities.Include(u => u.User).Include(cart => cart.Cart)
+                .ThenInclude(cartItem => cartItem.CartItems).ThenInclude(p => p.Product); ;
 
             // Apply id search filters if provided
             if (idSearch.HasValue)
@@ -110,6 +111,7 @@ namespace BusinessLogic.Services
                         orderDTO.Cart.CartItems = item.Cart.CartItems
                             .Select(ci => _mapper.Map<GetCartItemDTO>(ci))
                             .ToList();
+                        
                     }
                 }
                 return orderDTO;
