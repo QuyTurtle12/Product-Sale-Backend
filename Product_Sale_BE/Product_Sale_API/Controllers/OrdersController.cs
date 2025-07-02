@@ -53,12 +53,14 @@ namespace Product_Sale_API.Controllers
 
             try
             {
-                await _orderService.CreateOrder(OrderDTO);
+                // Call CreateOrder and receive the orderId
+                int orderId = await _orderService.CreateOrder(OrderDTO);
+                string orderIdString = orderId.ToString();
 
                 return Ok(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status200OK,
                     code: ResponseCodeConstants.SUCCESS,
-                    data: null,
+                    data: orderIdString,
                     message: "Order created successfully."
                 ));
             }

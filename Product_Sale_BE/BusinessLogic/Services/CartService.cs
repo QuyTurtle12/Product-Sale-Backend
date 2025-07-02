@@ -40,7 +40,7 @@ namespace BusinessLogic.Services
             _salesAppDbContext = salesAppDbContext;
         }
 
-        public async Task<PaginatedList<GetCartDTO>> GetPaginatedCartsAsync(int pageIndex, int pageSize, int? idSearch, int? userIdSearch, string? statusSearch)
+        public async Task<PaginatedList<GetCartDTO>> GetPaginatedCartsAsync(int pageIndex, int pageSize, int? idSearch, int? userIdSearch, string? statusSearch, bool getLatestCart)
         {
             if (pageIndex < 1 && pageSize < 1)
             {
@@ -48,6 +48,43 @@ namespace BusinessLogic.Services
             }
 
             IQueryable<Cart> query = _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems);
+
+            int cartId = 0;
+            if (getLatestCart)
+            {
+                int userId = _userService.GetUserId();
+
+                var cart = await (from c in _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems)
+                                  where c.UserId == userId && (c.Status == "Pending" || c.Status == "Active") &&
+                                        !_unitOfWork.GetRepository<Order>().Entities.Any(o => o.CartId == c.CartId)
+                                  orderby c.CartId descending
+                                  select c).FirstOrDefaultAsync();
+                if (cart != null)
+                {
+                    cartId = cart.CartId;
+                }
+                else
+                {
+                    AddCartDTO cartDTO = new AddCartDTO { UserId = userId };
+                    await CreateCart(cartDTO);
+                    var createdcart = await (from c in _unitOfWork.GetRepository<Cart>().Entities.Include(c => c.CartItems)
+                                      where c.UserId == userId && (c.Status == "Pending" || c.Status == "Active") &&
+                                            !_unitOfWork.GetRepository<Order>().Entities.Any(o => o.CartId == c.CartId)
+                                      orderby c.CartId descending
+                                      select c).FirstOrDefaultAsync();
+                    if (createdcart != null)
+                    {
+                        cartId = createdcart.CartId;
+                    }
+                }
+
+                if (cartId != 0)
+                {
+                    query = query.Where(p => p.CartId == cartId);
+                }
+
+            }
+
 
             // Apply id search filters if provided
             if (idSearch.HasValue)
@@ -125,6 +162,7 @@ namespace BusinessLogic.Services
             {
                 cartDTO.UserId = null;
             }
+
             if (_userService.IsTokenValid())
             {
                 cartDTO.UserId = _userService.GetUserId();

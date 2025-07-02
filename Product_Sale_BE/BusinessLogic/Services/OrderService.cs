@@ -133,7 +133,7 @@ namespace BusinessLogic.Services
             return responseItem;
         }
 
-        public async Task CreateOrder(AddOrderDTO OrderDTO)
+        public async Task<int> CreateOrder(AddOrderDTO OrderDTO)
         {
             if (OrderDTO == null)
             {
@@ -147,6 +147,8 @@ namespace BusinessLogic.Services
 
             await _unitOfWork.GetRepository<Order>().InsertAsync(Order);
             await _unitOfWork.SaveAsync();
+
+            return Order.OrderId;
         }
 
         public async Task UpdateOrder(int id, UpdateOrderDTO OrderDTO)
