@@ -82,7 +82,6 @@ namespace BusinessLogic.Services
                 {
                     query = query.Where(p => p.CartId == cartId);
                 }
-
             }
 
 

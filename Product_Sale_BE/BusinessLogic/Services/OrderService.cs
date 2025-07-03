@@ -33,7 +33,7 @@ namespace BusinessLogic.Services
         }
 
         public async Task<PaginatedList<GetOrderDTO>> GetPaginatedOrdersAsync(int pageIndex, int pageSize, int? idSearch, int? cartIdSearch, int? userIdSearch, 
-            string? paymentMethodSearch, string? addressSearch, string? statusSearch, DateTime? orderDateSearch, DateTime? startDate, DateTime? endDate)
+            string? paymentMethodSearch, string? addressSearch, string? statusSearch, DateTime? orderDateSearch, DateTime? startDate, DateTime? endDate, bool userIdInToken)
         {
             if (pageIndex < 1 && pageSize < 1)
             {
@@ -57,6 +57,15 @@ namespace BusinessLogic.Services
             if (userIdSearch.HasValue)
             {
                 query = query.Where(p => p.UserId == userIdSearch.Value);
+            }
+
+            int userIdFromToken = 0;
+            if (userIdInToken)
+            {
+                userIdFromToken = _userService.GetUserId();
+
+                query = query.Where(p => p.UserId == userIdFromToken);
+
             }
 
             // Apply name search filters if provided
