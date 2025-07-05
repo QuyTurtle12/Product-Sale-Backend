@@ -123,6 +123,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<IStoreLocationService, StoreLocationService>();
 
 // Add VNPAY service to the container.
 builder.Services.AddSingleton<IVnpay, Vnpay>();
