@@ -173,29 +173,29 @@ namespace Product_Sale_API.Controllers
 
         #endregion 
 
-        [HttpGet("customer/get-my-carts")]
-        public async Task<IActionResult> GetMyCartsAsync(int pageIndex = 1, int pageSize = 10, string? statusSearch = null)
-        {
-            PaginatedList<GetCartDTO> result = await _cartService.GetMyCartsAsync(pageIndex, pageSize, statusSearch);
+        //[HttpGet("customer/get-my-carts")]
+        //public async Task<IActionResult> GetMyCartsAsync(int pageIndex = 1, int pageSize = 10, string? statusSearch = null)
+        //{
+        //    PaginatedList<GetCartDTO> result = await _cartService.GetMyCartsAsync(pageIndex, pageSize, statusSearch);
 
-            return Ok(new BaseResponseModel<PaginatedList<GetCartDTO>>(
-                    statusCode: StatusCodes.Status200OK,
-                    code: ResponseCodeConstants.SUCCESS,
-                    data: result,
-                    message: "Carts retrieved successfully."
-                ));
-        }
+        //    return Ok(new BaseResponseModel<PaginatedList<GetCartDTO>>(
+        //            statusCode: StatusCodes.Status200OK,
+        //            code: ResponseCodeConstants.SUCCESS,
+        //            data: result,
+        //            message: "Carts retrieved successfully."
+        //        ));
+        //}
 
-        [HttpGet("customer/cart")]
-        public async Task<ActionResult<GetCartDTO?>> GetLatestCart()
-        {
-            var cart = await _cartService.GetMyLatestAvailableCartAsync();
+        //[HttpGet("customer/cart")]
+        //public async Task<ActionResult<GetCartDTO?>> GetLatestCart()
+        //{
+        //    var cart = await _cartService.GetMyLatestAvailableCartAsync();
 
-            if (cart == null)
-                return NotFound("No available cart found.");
+        //    if (cart == null)
+        //        return NotFound("No available cart found.");
 
-            return Ok(cart);
-        }
+        //    return Ok(cart);
+        //}
 
 
     }
