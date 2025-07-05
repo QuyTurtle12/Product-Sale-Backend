@@ -33,14 +33,15 @@ namespace BusinessLogic.Services
         }
 
         public async Task<PaginatedList<GetOrderDTO>> GetPaginatedOrdersAsync(int pageIndex, int pageSize, int? idSearch, int? cartIdSearch, int? userIdSearch, 
-            string? paymentMethodSearch, string? addressSearch, string? statusSearch, DateTime? orderDateSearch, DateTime? startDate, DateTime? endDate)
+            string? paymentMethodSearch, string? addressSearch, string? statusSearch, DateTime? orderDateSearch, DateTime? startDate, DateTime? endDate, bool userIdInToken)
         {
             if (pageIndex < 1 && pageSize < 1)
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BAD_REQUEST, "Page index or page size must be greater than or equal to 1.");
             }
 
-            IQueryable<Order> query = _unitOfWork.GetRepository<Order>().Entities.Include(u => u.User).Include(cart => cart.Cart).ThenInclude(cartItem => cartItem.CartItems); ;
+            IQueryable<Order> query = _unitOfWork.GetRepository<Order>().Entities.Include(u => u.User).Include(cart => cart.Cart)
+                .ThenInclude(cartItem => cartItem.CartItems).ThenInclude(p => p.Product); ;
 
             // Apply id search filters if provided
             if (idSearch.HasValue)
@@ -56,6 +57,15 @@ namespace BusinessLogic.Services
             if (userIdSearch.HasValue)
             {
                 query = query.Where(p => p.UserId == userIdSearch.Value);
+            }
+
+            int userIdFromToken = 0;
+            if (userIdInToken)
+            {
+                userIdFromToken = _userService.GetUserId();
+
+                query = query.Where(p => p.UserId == userIdFromToken);
+
             }
 
             // Apply name search filters if provided
@@ -110,6 +120,7 @@ namespace BusinessLogic.Services
                         orderDTO.Cart.CartItems = item.Cart.CartItems
                             .Select(ci => _mapper.Map<GetCartItemDTO>(ci))
                             .ToList();
+                        
                     }
                 }
                 return orderDTO;
@@ -131,7 +142,7 @@ namespace BusinessLogic.Services
             return responseItem;
         }
 
-        public async Task CreateOrder(AddOrderDTO OrderDTO)
+        public async Task<int> CreateOrder(AddOrderDTO OrderDTO)
         {
             if (OrderDTO == null)
             {
@@ -145,6 +156,8 @@ namespace BusinessLogic.Services
 
             await _unitOfWork.GetRepository<Order>().InsertAsync(Order);
             await _unitOfWork.SaveAsync();
+
+            return Order.OrderId;
         }
 
         public async Task UpdateOrder(int id, UpdateOrderDTO OrderDTO)

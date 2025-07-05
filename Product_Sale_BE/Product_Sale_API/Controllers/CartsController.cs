@@ -33,11 +33,12 @@ namespace Product_Sale_API.Controllers
         /// <param name="idSearch">product id</param>
         /// <param name="userIdSearch">user id</param>
         /// <param name="statusSearch">status</param>
+        /// <param name="getUserLastestCart">Show user lastest cart</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetPaginatedCartsAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? userIdSearch = null, string? statusSearch = null)
+        public async Task<IActionResult> GetPaginatedCartsAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? userIdSearch = null, string? statusSearch = null, bool getUserLastestCart = false)
         {
-            PaginatedList<GetCartDTO> result = await _cartService.GetPaginatedCartsAsync(pageIndex, pageSize, idSearch, userIdSearch, statusSearch);
+            PaginatedList<GetCartDTO> result = await _cartService.GetPaginatedCartsAsync(pageIndex, pageSize, idSearch, userIdSearch, statusSearch, getUserLastestCart);
             return Ok(new BaseResponseModel<PaginatedList<GetCartDTO>>(
                     statusCode: StatusCodes.Status200OK,
                     code: ResponseCodeConstants.SUCCESS,

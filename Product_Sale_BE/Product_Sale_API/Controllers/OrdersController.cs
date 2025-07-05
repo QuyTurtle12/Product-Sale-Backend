@@ -26,10 +26,11 @@ namespace Product_Sale_API.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetPaginatedOrdersAsync(int pageIndex = 1, int pageSize = 10, int? idSearch = null, int? cartIdSearch = null, int? userIdSearch = null, 
-            string? paymentMethodSearch = null, string? addressSearch = null, string? statusSearch = null, DateTime? orderDateSearch = null, DateTime? startDate = null, DateTime? endDate = null)
+            string? paymentMethodSearch = null, string? addressSearch = null, string? statusSearch = null, 
+            DateTime? orderDateSearch = null, DateTime? startDate = null, DateTime? endDate = null, bool userIdInToken = false)
         {
             PaginatedList<GetOrderDTO> result = await _orderService.GetPaginatedOrdersAsync(pageIndex, pageSize, idSearch, cartIdSearch, userIdSearch,
-            paymentMethodSearch, addressSearch, statusSearch, orderDateSearch, startDate, endDate);
+            paymentMethodSearch, addressSearch, statusSearch, orderDateSearch, startDate, endDate, userIdInToken);
             return Ok(new BaseResponseModel<PaginatedList<GetOrderDTO>>(
                     statusCode: StatusCodes.Status200OK,
                     code: ResponseCodeConstants.SUCCESS,
@@ -53,12 +54,14 @@ namespace Product_Sale_API.Controllers
 
             try
             {
-                await _orderService.CreateOrder(OrderDTO);
+                // Call CreateOrder and receive the orderId
+                int orderId = await _orderService.CreateOrder(OrderDTO);
+                string orderIdString = orderId.ToString();
 
                 return Ok(new BaseResponseModel<string>(
                     statusCode: StatusCodes.Status200OK,
                     code: ResponseCodeConstants.SUCCESS,
-                    data: null,
+                    data: orderIdString,
                     message: "Order created successfully."
                 ));
             }
