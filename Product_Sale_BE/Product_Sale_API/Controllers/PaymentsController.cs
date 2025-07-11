@@ -251,6 +251,7 @@ namespace Product_Sale_API.Controllers
                 {
                     // Chuyển hướng đến trang thất bại nếu thanh toán không thành công
                     return Redirect("https://localhost:7050/swagger/Fail");
+                    // return Ok(new { status = "fail", message = "Payment was not successful." });
                 }
 
                 // Extract orderId từ vnp_TxnRef
@@ -291,20 +292,43 @@ namespace Product_Sale_API.Controllers
                 if (existingOrder == null)
                 {
                     return BadRequest($"OrderId {paymentDto.OrderId} does not exist.");
+                    // return BadRequest(new { status = "fail", message = $"OrderId {orderId} does not exist." });
                 }
 
                 // Xử lý OrderStage (giữ nguyên phần này)
-                
+
 
                 // Chuyển hướng đến trang thành công
                 return Redirect("https://localhost:7050/swagger/Success");
+                // return Ok(new { status = "success", orderId });
             }
             catch (Exception ex)
             {
                 // Chuyển hướng đến trang lỗi nếu có exception
                 return Redirect("https://localhost:7050/swagger/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
+                //return StatusCode(500, new
+                //{
+                //    status = "error",
+                //    message = "Internal server error during VNPay callback",
+                //    error = ex.Message
+                //});
             }
         }
+
+        //[HttpGet("payment-status/{orderId}")]
+        //public async Task<IActionResult> CheckPaymentStatus(int orderId)
+        //{
+        //    var payment = await _paymentService.GetPaymentByOrderId(orderId);
+
+        //    if (payment == null)
+        //        return NotFound(new { status = "not_found" });
+
+        //    return Ok(new
+        //    {
+        //        status = payment.PaymentStatus, // "Pending", "Paid", etc.
+        //        orderId = payment.OrderId
+        //    });
+        //}
 
 
         #endregion
