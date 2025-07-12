@@ -103,6 +103,18 @@ namespace BusinessLogic.Services
             return responseItem;
         }
 
+        public async Task<GetPaymentDTO> GetPaymentByOrderId(int orderId)
+        {
+            Payment? Payment = await _unitOfWork.GetRepository<Payment>().Entities
+                        .FirstOrDefaultAsync(p => p.OrderId == orderId);
+            if (Payment == null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Payment not found!");
+            }
+            GetPaymentDTO responseItem = _mapper.Map<GetPaymentDTO>(Payment);
+            return responseItem;
+        }
+
         public async Task CreatePayment(AddPaymentDTO PaymentDTO)
         {
             if (PaymentDTO == null)

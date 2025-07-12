@@ -191,13 +191,13 @@ namespace Product_Sale_API.Controllers
 
                 var paymentUrl = _vnpay.GetPaymentUrl(request);
 
-                //return Created(paymentUrl, paymentUrl);
+                // return Created(paymentUrl, paymentUrl);
                 return Ok(new BaseResponseModel<string>(
-                            statusCode: StatusCodes.Status200OK,
-                            code: ResponseCodeConstants.SUCCESS,
-                            data: paymentUrl,
-                            message: "Payment URL created successfully."
-                ));
+                           statusCode: StatusCodes.Status200OK,
+                           code: ResponseCodeConstants.SUCCESS,
+                           data: paymentUrl,
+                           message: "Payment URL created successfully."
+               ));
             }
             catch (Exception ex)
             {
@@ -251,7 +251,7 @@ namespace Product_Sale_API.Controllers
                 {
                     // Chuyển hướng đến trang thất bại nếu thanh toán không thành công
                     return Redirect("https://localhost:7050/swagger/Fail");
-                    // return Ok(new { status = "fail", message = "Payment was not successful." });
+                    // return Ok(new{status = "Failed",message = "Payment was not successful"});
                 }
 
                 // Extract orderId từ vnp_TxnRef
@@ -300,7 +300,7 @@ namespace Product_Sale_API.Controllers
 
                 // Chuyển hướng đến trang thành công
                 return Redirect("https://localhost:7050/swagger/Success");
-                // return Ok(new { status = "success", orderId });
+               //  return Ok(new{status = "Success",message = "Payment processed successfully",orderId = paymentDto.OrderId});
             }
             catch (Exception ex)
             {
@@ -315,20 +315,20 @@ namespace Product_Sale_API.Controllers
             }
         }
 
-        //[HttpGet("payment-status/{orderId}")]
-        //public async Task<IActionResult> CheckPaymentStatus(int orderId)
-        //{
-        //    var payment = await _paymentService.GetPaymentByOrderId(orderId);
+        [HttpGet("payment-status/{orderId}")]
+        public async Task<IActionResult> CheckPaymentStatus(int orderId)
+        {
+            var payment = await _paymentService.GetPaymentByOrderId(orderId);
 
-        //    if (payment == null)
-        //        return NotFound(new { status = "not_found" });
+            if (payment == null)
+                return NotFound(new { status = "not_found" });
 
-        //    return Ok(new
-        //    {
-        //        status = payment.PaymentStatus, // "Pending", "Paid", etc.
-        //        orderId = payment.OrderId
-        //    });
-        //}
+            return Ok(new
+            {
+                status = payment.PaymentStatus, // "Pending", "Paid", etc.
+                orderId = payment.OrderId
+            });
+        }
 
 
         #endregion

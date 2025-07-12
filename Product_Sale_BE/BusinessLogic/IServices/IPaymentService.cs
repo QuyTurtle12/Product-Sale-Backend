@@ -13,6 +13,7 @@ namespace BusinessLogic.IServices
         Task<PaginatedList<GetPaymentDTO>> GetPaginatedPaymentsAsync(int pageIndex, int pageSize, int? idSearch, int? orderIdSearch, decimal? amountSearch, 
             string? statusSearch, DateTime? paymentDateSearch, DateTime? startDate, DateTime? endDate);
         Task<GetPaymentDTO> GetPaymentById(int id);
+        Task<GetPaymentDTO> GetPaymentByOrderId(int orderId);
         Task CreatePayment(AddPaymentDTO PaymentDTO);
         Task UpdatePayment(int id, UpdatePaymentDTO PaymentDTO);
         Task DeletePayment(int id);
