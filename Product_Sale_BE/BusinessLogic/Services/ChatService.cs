@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using BusinessLogic.Hubs;
 using BusinessLogic.IServices;
 using DataAccess.DTOs.ChatDTOs;
 using DataAccess.Entities;
 using DataAccess.IRepositories;
 using DataAccess.PaginatedList;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,11 +18,12 @@ namespace BusinessLogic.Services
     {
         private readonly IUOW _uow;
         private readonly IMapper _mapper;
-
-        public ChatService(IUOW uow, IMapper mapper)
+        private readonly IHubContext<ChatHub> _hub;
+        public ChatService(IUOW uow, IMapper mapper, IHubContext<ChatHub> hub)
         {
             _uow = uow;
             _mapper = mapper;
+            _hub = hub;
         }
 
         public async Task<PaginatedList<ChatMessageDTO>> GetMessagesAsync(
@@ -80,8 +83,16 @@ namespace BusinessLogic.Services
                 .FirstOrDefaultAsync(cm => cm.ChatMessageId == entity.ChatMessageId)
                 ?? throw new Exception("Failed to load saved message.");
 
-            return _mapper.Map<ChatMessageDTO>(saved);
+            var dtoOut = _mapper.Map<ChatMessageDTO>(saved);
+
+            // Broadcast to everyone in the chatBox group
+            await _hub.Clients
+                .Group(dto.ChatBoxId.ToString())
+                .SendAsync("ReceiveMessage", dtoOut);
+
+            return dtoOut;
         }
+
 
         public async Task<ChatMessageDTO> UpdateMessageAsync(
             int userId, int messageId, UpdateChatMessageRequestDTO dto)
