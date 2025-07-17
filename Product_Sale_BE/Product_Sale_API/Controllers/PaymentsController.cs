@@ -250,8 +250,9 @@ namespace Product_Sale_API.Controllers
                 if (!paymentResult.IsSuccess)
                 {
                     // Chuyển hướng đến trang thất bại nếu thanh toán không thành công
-                    return Redirect("https://localhost:7050/swagger/Fail");
+                    // return Redirect("https://localhost:7050/swagger/Fail");
                     // return Ok(new{status = "Failed",message = "Payment was not successful"});
+                    return Redirect($"myapp://paymentresult?status=fail&message=Payment%20failed");
                 }
 
                 // Extract orderId từ vnp_TxnRef
