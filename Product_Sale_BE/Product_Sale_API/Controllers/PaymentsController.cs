@@ -299,19 +299,22 @@ namespace Product_Sale_API.Controllers
 
 
                 // Chuyển hướng đến trang thành công
-                return Redirect("https://localhost:7050/swagger/Success");
-               //  return Ok(new{status = "Success",message = "Payment processed successfully",orderId = paymentDto.OrderId});
+                // return Redirect("https://localhost:7050/swagger/Success");
+                //  return Ok(new{status = "Success",message = "Payment processed successfully",orderId = paymentDto.OrderId});
+                // After processing payment successfully:
+                return Redirect($"myapp://paymentresult?orderId={paymentDto.OrderId}&status=success");
             }
             catch (Exception ex)
             {
                 // Chuyển hướng đến trang lỗi nếu có exception
-                return Redirect("https://localhost:7050/swagger/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
+                // return Redirect("https://localhost:7050/swagger/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
                 //return StatusCode(500, new
                 //{
                 //    status = "error",
                 //    message = "Internal server error during VNPay callback",
                 //    error = ex.Message
                 //});
+                return Redirect($"myapp://paymentresult?status=fail&message=Payment%20failed");
             }
         }
 
