@@ -1,5 +1,6 @@
 ﻿// Product_Sale_API/Controllers/AuthController.cs
 using BusinessLogic.IServices;
+using BusinessLogic.Services;
 using DataAccess.Constant;
 using DataAccess.DTOs.AuthDTOs;
 using DataAccess.DTOs.UserDTOs;
@@ -16,10 +17,12 @@ namespace Product_Sale_API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
         }
 
         /// <summary>
@@ -72,6 +75,17 @@ namespace Product_Sale_API.Controllers
         public async Task<IActionResult> RequireAnyUserRole()
         {
             return Ok();
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUsernameByIdAsync(int id)
+        {
+            var username = await _userService.GetUsernameByIdAsync(id);
+            return Ok(new BaseResponseModel<string>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: username,
+                message: "Username retrieved successfully."
+            ));
         }
 
     }
