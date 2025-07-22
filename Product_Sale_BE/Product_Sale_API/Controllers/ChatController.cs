@@ -28,7 +28,7 @@ namespace Product_Sale_API.Controllers
         // GET /api/chat?pageIndex=&pageSize=&chatBoxId=&userId=
         [HttpGet]
         public async Task<IActionResult> GetMessages(
-            int pageIndex = 1, int pageSize = 20,
+            int pageIndex = 1, int pageSize = 9999,
             int? chatBoxId = null, int? userId = null)
         {
             var paged = await _chatService.GetMessagesAsync(
@@ -44,7 +44,7 @@ namespace Product_Sale_API.Controllers
         // GET /api/chat/box/{chatBoxId}?pageIndex=&pageSize=
         [HttpGet("box/{chatBoxId}")]
         public async Task<IActionResult> GetByBox(
-            int chatBoxId, int pageIndex = 1, int pageSize = 20)
+            int chatBoxId, int pageIndex = 1, int pageSize = 9999)
         {
             var paged = await _chatService.GetMessagesAsync(
                 pageIndex, pageSize, chatBoxId, null);
